@@ -4,7 +4,7 @@ An AI-driven workflow automation that ingests facility maintenance reports, clas
 
 Built in [n8n](https://n8n.io) with [Claude](https://www.anthropic.com/claude) (Haiku) as the reasoning engine.
 
-**[Live dashboard →]([./dashboard/index.html](https://frogman263.github.io/facility-maintenance-triage/dashboard/))**
+**[Live dashboard →](https://frogman263.github.io/facility-maintenance-triage/dashboard/)**
 
 ---
 
