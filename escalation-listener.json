@@ -1,0 +1,195 @@
+{
+  "name": "Escalation Listener",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "YOUR-WEBHOOK-PATH-HERE",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ab0cd399-c591-4564-a39d-61ecdc29f0a7",
+      "name": "Webhook",
+      "webhookId": "YOUR-WEBHOOK-PATH-HERE"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"challenge\": $json.body.challenge } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        208,
+        96
+      ],
+      "id": "a3c4acf2-0c8a-415c-90fc-c429b47607d9",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c",
+          "mode": "list",
+          "cachedResultName": "Maintenance Tickets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 265790464,
+          "mode": "list",
+          "cachedResultName": "Escalation Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c/edit#gid=265790464"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Slack Message TS": "={{ $json.body.event.item.ts }}",
+            "Status": "Acknowledged",
+            "Acknowledged At": "={{ $now.format('yyyy-MM-dd HH:mm') }}"
+          },
+          "matchingColumns": [
+            "Slack Message TS"
+          ],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Slack Message TS",
+              "displayName": "Slack Message TS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Acknowledged At",
+              "displayName": "Acknowledged At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        -112
+      ],
+      "id": "6f5968ef-c308-411d-bcbb-ee83b599a10b",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GZBvjsfCUCNrQ0lV",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "be5c469e-ae44-4473-96cd-de49d7b7896e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "592fece0174cab8cd338438a7f5cae5ce871ce554cfb78b44238b7d222c7c62a"
+  },
+  "nodeGroups": [],
+  "id": "iMbinUdN6odB0MRz",
+  "tags": []
+}

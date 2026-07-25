@@ -1,0 +1,765 @@
+{
+  "name": "Facility Maintenance Triage & Alerting",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c",
+          "mode": "list",
+          "cachedResultName": "Maintenance Tickets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2053343414,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c/edit#gid=2053343414"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -928,
+        0
+      ],
+      "id": "d28cef84-2d7e-45b1-bad3-80647f1aa4df",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "HEitpSAlsGI3nNhh",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "claude-haiku-4-5-20251001",
+          "mode": "list",
+          "cachedResultName": "claude-haiku-4-5-20251001"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a facility maintenance triage assistant. Given a maintenance report and any known equipment history, respond in exactly this format with no extra commentary:\n\nCategory: [Mechanical/Electrical/Instrumentation/Safety-Critical]\nUrgency: [Low/Medium/High/Critical]\nSummary: [one sentence describing the issue]\nRecommended Action: [one sentence with the immediate next step, referencing known equipment history if relevant]\n\nEquipment history (if available):\nSpec notes: {{ $json['Spec Notes'] }}\nKnown failure patterns: {{ $json['Known Failure Patterns'] }}\nLast service date: {{ $json['Last Service Date'] }}\n\nMaintenance report:\nReporter: {{ $('Google Sheets Trigger').item.json['Reporter Name'] }}\nLocation/Equipment: {{ $('Google Sheets Trigger').item.json['Location / Equipment ID'] }}\nIssue: {{ $('Google Sheets Trigger').item.json['Issue Description'] }}\n\nIf no equipment history is available, classify based on the issue description alone."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        0
+      ],
+      "id": "ee994a30-848a-4cc4-91d5-aa928c28a886",
+      "name": "Message a model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "v2tMMog04d9SxmzX",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f0b454ba-4431-4dd4-868c-9c15bdb50b9e",
+              "leftValue": "={{ $json.content[0].text.match(/Category:\\s*(.+)/)?.[1]?.trim() || '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "f8088047-34da-4e08-a36c-9a7e36ee1d94",
+              "leftValue": "={{ $json.content[0].text.match(/Urgency:\\s*(.+)/)?.[1]?.trim() || '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "3cc7df00-a2b4-4be2-9bbb-bf2abefbdcc3",
+              "leftValue": "={{ $json.content[0].text.match(/Summary:\\s*(.+)/)?.[1]?.trim() || '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -128,
+        0
+      ],
+      "id": "e5b8a1e4-a678-4c43-a461-9cfb40fbf044",
+      "name": "Parse Check"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c",
+          "mode": "list",
+          "cachedResultName": "Maintenance Tickets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 868475052,
+          "mode": "list",
+          "cachedResultName": "Needs Review",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c/edit#gid=868475052"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $now.format('yyyy-MM-dd HH:mm') }}",
+            "Location": "={{ $('Google Sheets Trigger').item.json['Location / Equipment ID'] }}",
+            "Reporter": "={{ $('Google Sheets Trigger').item.json['Reporter Name'] }}",
+            "Raw AI Output": "={{ $json.content[0].text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reporter",
+              "displayName": "Reporter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Raw AI Output",
+              "displayName": "Raw AI Output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        112,
+        -208
+      ],
+      "id": "1332ebf4-d757-4edb-be41-e72594502244",
+      "name": "Log to Needs Review",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GZBvjsfCUCNrQ0lV",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BKM7X63K6",
+          "mode": "list",
+          "cachedResultName": "maintenance-alerts"
+        },
+        "text": "=:warning: Needs Human Review — AI classification failed to parse Raw output: {{ $json.content[0].text }} Location: {{ $('Google Sheets Trigger').item.json['Location / Equipment ID'] }} Reporter: {{ $('Google Sheets Trigger').item.json['Reporter Name'] }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        320,
+        -208
+      ],
+      "id": "a088c7df-3bed-404a-82ce-09617169f9a6",
+      "name": "Alert: Needs Human Review",
+      "webhookId": "899f49a5-ae19-4d4a-8a78-d03de40df957",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "Z2ofepirpTNSky5l",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c",
+          "mode": "list",
+          "cachedResultName": "Maintenance Tickets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2114970077,
+          "mode": "list",
+          "cachedResultName": "Maintenance Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c/edit#gid=2114970077"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $now.format('yyyy-MM-dd HH:mm') }}",
+            "Location": "={{ $('Google Sheets Trigger').item.json['Location / Equipment ID'] }}",
+            "Category": "={{ $json.content[0].text.match(/Category:\\s*(.+)/)?.[1]?.trim() || '' }}",
+            "Urgency": "={{ $json.content[0].text.match(/Urgency:\\s*(.+)/)?.[1]?.trim() || '' }}",
+            "Summary": "={{ $json.content[0].text.match(/Summary:\\s*(.+)/)?.[1]?.trim() || '' }}",
+            "Recommended Action": "={{ $json.content[0].text.match(/Recommended Action:\\s*(.+)/)?.[1]?.trim() || '' }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Urgency",
+              "displayName": "Urgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Recommended Action",
+              "displayName": "Recommended Action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        32,
+        208
+      ],
+      "id": "b8b89173-6bb5-4afb-ba0e-f925bff40c9d",
+      "name": "Log to Maintenance Log",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GZBvjsfCUCNrQ0lV",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Message a model').item.json.content[0].text.match(/Urgency:\\s*(.+)/)?.[1]?.trim() }}",
+                    "rightValue": "Critical",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c560c349-91ce-4695-be05-9ca770b85421"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "ec85edb5-1da2-4ca4-9d68-7f54b0fd78f1",
+                    "leftValue": "={{ $('Message a model').item.json.content[0].text.match(/Urgency:\\s*(.+)/)?.[1]?.trim() }}",
+                    "rightValue": "High",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "3c31deb2-1e61-407a-bd74-b7083bd56f68",
+                    "leftValue": "",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        192
+      ],
+      "id": "0f388997-dd8d-4321-b322-cf27a863502c",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BKM7X63K6",
+          "mode": "list",
+          "cachedResultName": "maintenance-alerts"
+        },
+        "text": "=🔥 CRITICAL — Immediate Action Required\n<!here>\n\n{{ $('Message a model').item.json.content[0].text }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        512,
+        32
+      ],
+      "id": "ecb5c4f1-27a6-419c-9f7e-bc8ca4e4c34e",
+      "name": "Alert: Critical",
+      "webhookId": "a3c94cc3-8623-4f6d-9480-cf9c63209ba6",
+      "credentials": {
+        "slackApi": {
+          "id": "lhp4tQoHroTDu1RP",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BKM7X63K6",
+          "mode": "id"
+        },
+        "text": "=⚠️ High Priority Maintenance Alert\n\n{{ $('Message a model').item.json.content[0].text }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        512,
+        192
+      ],
+      "id": "29e99cac-382f-42b0-860c-f79a556b9f95",
+      "name": "Alert: High",
+      "webhookId": "bcb3a27b-31d8-41e8-bd55-4689148905b7",
+      "credentials": {
+        "slackApi": {
+          "id": "lhp4tQoHroTDu1RP",
+          "name": "Slack account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c",
+          "mode": "list",
+          "cachedResultName": "Maintenance Tickets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 265790464,
+          "mode": "list",
+          "cachedResultName": "Escalation Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c/edit#gid=265790464"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $now.format('yyyy-MM-dd HH:mm') }}",
+            "Slack Message TS": "={{ $json.message.ts }}",
+            "Location": "={{ $('Google Sheets Trigger').item.json['Location / Equipment ID'] }}",
+            "Summary": "={{ $('Message a model').item.json.content[0].text.match(/Summary:\\s*(.+)/)?.[1]?.trim() || '' }}",
+            "Status": "Pending"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Slack Message TS",
+              "displayName": "Slack Message TS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        720,
+        32
+      ],
+      "id": "06cdcf14-8738-40cf-86e8-aefd711a6542",
+      "name": "Log to Escalation Tracker",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GZBvjsfCUCNrQ0lV",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c",
+          "mode": "list",
+          "cachedResultName": "Maintenance Tickets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 229329133,
+          "mode": "list",
+          "cachedResultName": "Equipment Knowledge Base",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aPR5oX0qFK_SsElhj4q7aVJbUORQ4aGcvSGtKTtI95c/edit#gid=229329133"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Equipment ID",
+              "lookupValue": "={{ $json['Location / Equipment ID'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -688,
+        0
+      ],
+      "id": "b1388313-625d-41e1-9be8-57feb32e834b",
+      "name": "Retrieve Equipment Context",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GZBvjsfCUCNrQ0lV",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Equipment Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Parse Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Check": {
+      "main": [
+        [
+          {
+            "node": "Log to Needs Review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log to Maintenance Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Needs Review": {
+      "main": [
+        [
+          {
+            "node": "Alert: Needs Human Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Maintenance Log": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Alert: Critical",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert: High",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert: Critical": {
+      "main": [
+        [
+          {
+            "node": "Log to Escalation Tracker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Escalation Tracker": {
+      "main": [
+        []
+      ]
+    },
+    "Retrieve Equipment Context": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "2d73292c-ac81-41a2-becf-65645f9f1303",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "592fece0174cab8cd338438a7f5cae5ce871ce554cfb78b44238b7d222c7c62a"
+  },
+  "nodeGroups": [],
+  "id": "JrwvGVWEAbiebINR",
+  "tags": []
+}
