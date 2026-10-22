@@ -75,6 +75,14 @@ This is a working prototype demonstrating the architecture, not a production dep
 - **Google Sheets as a data layer** works well for a fast prototype but wouldn't be the right long-term choice at real scale or with concurrent write volume — a proper database would replace it in a production version.
 - **Equipment knowledge base is manually maintained** rather than synced from a real asset management system.
 
+## Changelog
+
+### 2026-10-22: Migration to self-hosted n8n (in progress)
+- Migrated both workflows from n8n Cloud to self-hosted n8n (Community Edition, registered) on a home Umbrel server.
+- Public access via Cloudflare Tunnel with no open router ports. Umbrel's auth proxy keeps the n8n editor private; only webhook paths are reachable from the internet. Verified with external tests.
+- Found and queued fixes: one Slack alert node still bound to a personal OAuth credential; off-format urgency values could skip alerting; Slack webhook lacks request-signature verification.
+- Status: credentials not yet configured. Google auth approach under review (self-hosted n8n cannot use Google's managed OAuth).
+
 ## Repo contents
 
 - `workflow.json` — exported n8n workflow (main triage pipeline)
